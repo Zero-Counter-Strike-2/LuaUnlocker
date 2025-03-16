@@ -48,7 +48,6 @@ parser.options.add_argument('--asan', action='store_const', const='1', dest='asa
                        help='Build for AddressSanitizer')
 parser.Configure()
 
-
 # Add include directory to the build
-if parser.options.include_dir:
+if hasattr(parser.options, 'include_dir') and parser.options.include_dir:
     parser.env.Append(CPPPATH=[parser.options.include_dir])
