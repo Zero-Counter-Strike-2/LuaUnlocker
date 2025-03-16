@@ -36,6 +36,8 @@ parser.options.add_argument('-s', '--sdks', default='all', dest='sdks',
                             'comma-delimited list of engine names (default: "all")')
 parser.options.add_argument('--targets', type=str, dest='targets', default=None,
                             help="Override the target architecture (use commas to separate multiple targets).")
+parser.options.add_argument('--include-dir', type=str, dest='include_dir', default=None,
+                           help="Additional include directory for the build.")
 parser.Configure()
 
 # AddressSanitizer Instructions:
