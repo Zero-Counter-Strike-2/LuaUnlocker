@@ -97,7 +97,8 @@ jobs:
           apt update && apt install -y clang-16
           ln -sf /usr/bin/clang-16 /usr/bin/clang && ln -sf /usr/bin/clang++-16 /usr/bin/clang++
 
-      - name: Verify libtier0.so
+      - name: Verify libtier0.so (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
         run: |
           if [ ! -f "hl2sdk-cs2/lib/linux64/libtier0.so" ]; then
             echo "libtier0.so missing - creating dummy file"
