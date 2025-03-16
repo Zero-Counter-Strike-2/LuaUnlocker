@@ -65,7 +65,7 @@ jobs:
         shell: bash
         run: |
           mkdir build && cd build
-          python ../configure.py --enable-optimize --symbol-files --sdks cs2 --include-dir ../../protobuf/generated
+          python ../configure.py --enable-optimize --symbol-files --sdks cs2 --include-dir protobuf/generated
           ambuild
 
       - name: Upload artifact
