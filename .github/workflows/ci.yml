@@ -29,18 +29,6 @@ jobs:
         with:
           path: LuaUnlocker
 
-      - name: Verify Protobuf Directory
-        run: |
-          cd LuaUnlocker
-          ls -R
-          if [ -d "protobuf" ]; then
-            echo "Protobuf directory found."
-            ls protobuf
-          else
-            echo "Protobuf directory not found!"
-            exit 1
-          fi
-
       - name: Checkout Metamod
         uses: actions/checkout@v4
         with:
