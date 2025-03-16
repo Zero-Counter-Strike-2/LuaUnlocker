@@ -44,6 +44,12 @@ jobs:
           ref: cs2
           path: hl2sdk-cs2
 
+      # Add the patch step here
+      - name: Patch HL2SDK (va_list fix)
+        run: |
+          sed -i 's/m_ReuseList = List;/va_copy(m_ReuseList, List);/g' hl2sdk-cs2/public/tier0/platform.h
+
+
       - name: Checkout AMBuild
         uses: actions/checkout@v4
         with:
