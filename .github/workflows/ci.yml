@@ -31,6 +31,7 @@ jobs:
 
       - name: Verify Protobuf Directory
         run: |
+          cd LuaUnlocker
           ls -R
           if [ -d "protobuf" ]; then
             echo "Protobuf directory found."
