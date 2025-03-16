@@ -47,9 +47,9 @@ jobs:
       #    path: hl2sdk-cs2
 
       # Add the patch step here
-      - name: Patch HL2SDK (va_list fix)
-        run: |
-          sed -i 's/m_ReuseList = List;/va_copy(m_ReuseList, List);/g' sdk/public/tier0/platform.h
+      #- name: Patch HL2SDK (va_list fix)
+      #  run: |
+      #    sed -i 's/m_ReuseList = List;/va_copy(m_ReuseList, List);/g' sdk/public/tier0/platform.h
 
       - name: Verify HL2SDK Structure
         run: |
