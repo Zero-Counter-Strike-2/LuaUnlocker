@@ -48,6 +48,11 @@ jobs:
         run: |
           sed -i 's/m_ReuseList = List;/va_copy(m_ReuseList, List);/g' hl2sdk-cs2/public/tier0/platform.h
 
+      - name: Install Protobuf
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y protobuf-compiler libprotobuf-dev
+
       - name: Copy Protobuf Headers to SDK
         run: |
           mkdir -p hl2sdk-cs2/public
@@ -82,7 +87,7 @@ jobs:
         shell: bash
         run: |
           mkdir build && cd build
-          python ../configure.py --enable-optimize --symbol-files --sdks cs2
+          python ../configure.py --enable-optimize --symbol-files --sdks cs2 --include-dir /usr/include
           ambuild
 
       - name: Upload artifact
