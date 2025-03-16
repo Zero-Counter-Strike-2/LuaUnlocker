@@ -48,10 +48,19 @@ jobs:
         run: |
           sed -i 's/m_ReuseList = List;/va_copy(m_ReuseList, List);/g' hl2sdk-cs2/public/tier0/platform.h
 
-      - name: Install Protobuf
+      - name: Install Protobuf (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt-get update
           sudo apt-get install -y protobuf-compiler libprotobuf-dev
+
+      - name: Install Protobuf (Windows)
+        if: matrix.os == 'windows-2022'
+        run: |
+          # Download and install precompiled Protobuf for Windows
+          Invoke-WebRequest -Uri "https://github.com/protocolbuffers/protobuf/releases/download/v21.12/protoc-21.12-win64.zip" -OutFile "protoc.zip"
+          Expand-Archive -Path "protoc.zip" -DestinationPath "C:/protobuf"
+          echo "C:/protobuf/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append
 
       - name: Regenerate Protobuf Files
         run: |
