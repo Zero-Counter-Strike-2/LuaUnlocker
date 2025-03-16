@@ -51,24 +51,24 @@ jobs:
       #  run: |
       #    sed -i 's/m_ReuseList = List;/va_copy(m_ReuseList, List);/g' sdk/public/tier0/platform.h
 
-      - name: Verify HL2SDK Structure
-        run: |
-          if [ -d "hl2sdk-cs2/public" ]; then
-            echo "HL2SDK public directory exists."
-          else
-            echo "HL2SDK public directory missing. Creating it..."
-            mkdir -p hl2sdk-cs2/public
-          fi
+      #- name: Verify HL2SDK Structure
+      #  run: |
+      #    if [ -d "hl2sdk-cs2/public" ]; then
+      #      echo "HL2SDK public directory exists."
+       #   else
+      #      echo "HL2SDK public directory missing. Creating it..."
+      #      mkdir -p hl2sdk-cs2/public
+       #   fi
 
-      - name: Verify Protobuf Directory
-        run: |
-          cd LuaUnlocker
-          if [ -d "protobuf/generated" ]; then
-            echo "Protobuf generated directory found."
-          else
-            echo "Protobuf generated directory missing!"
-            exit 1
-          fi
+     # - name: Verify Protobuf Directory
+     #   run: |
+     #     cd LuaUnlocker
+     #     if [ -d "protobuf/generated" ]; then
+     #       echo "Protobuf generated directory found."
+    #      else
+     #       echo "Protobuf generated directory missing!"
+     #       exit 1
+     #     fi
 
       - name: Copy Protobuf Headers to SDK
         run: |
@@ -96,7 +96,7 @@ jobs:
         shell: bash
         run: |
           mkdir build && cd build
-          python ../configure.py --enable-optimize --symbol-files --sdks cs2
+          python ../configure.py --enable-optimize --sdks cs2
           ambuild
 
       - name: Upload artifact
