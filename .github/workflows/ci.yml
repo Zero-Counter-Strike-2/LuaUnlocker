@@ -59,17 +59,13 @@ jobs:
         run: |
           cd ambuild && python setup.py install && cd ..
 
-      - name: List Protobuf Directory
-        run: |
-          ls -R protobuf
-
 
       - name: Build
         working-directory: LuaUnlocker
         shell: bash
         run: |
           mkdir build && cd build
-          python ../configure.py --enable-optimize --symbol-files --sdks cs2 --include-dir ../protobuf
+          python ../configure.py --enable-optimize --symbol-files --sdks cs2 --include-dir ../protobuf/generated
           ambuild
 
       - name: Upload artifact
