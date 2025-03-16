@@ -28,6 +28,8 @@ jobs:
         uses: actions/checkout@v4
         with:
           path: LuaUnlocker
+          submodules: recursive
+          fetch-depth: 0
 
       - name: Checkout Metamod
         uses: actions/checkout@v4
@@ -37,17 +39,17 @@ jobs:
           path: mmsource-2.0
           submodules: recursive
 
-      - name: Checkout HL2SDK
-        uses: actions/checkout@v4
-        with:
-          repository: alliedmodders/hl2sdk
-          ref: cs2
-          path: hl2sdk-cs2
+      #- name: Checkout HL2SDK
+      #  uses: actions/checkout@v4
+      #  with:
+      #    repository: alliedmodders/hl2sdk
+      #    ref: cs2
+      #    path: hl2sdk-cs2
 
       # Add the patch step here
       - name: Patch HL2SDK (va_list fix)
         run: |
-          sed -i 's/m_ReuseList = List;/va_copy(m_ReuseList, List);/g' hl2sdk-cs2/public/tier0/platform.h
+          sed -i 's/m_ReuseList = List;/va_copy(m_ReuseList, List);/g' sdk/public/tier0/platform.h
 
       - name: Verify HL2SDK Structure
         run: |
@@ -71,7 +73,7 @@ jobs:
       - name: Copy Protobuf Headers to SDK
         run: |
           # Copy generated .pb.h files into the SDK's public directory
-          cp LuaUnlocker/protobuf/generated/*.pb.h LuaUnlocker/hl2sdk-cs2/public/
+          cp LuaUnlocker/protobuf/generated/*.pb.h LuaUnlocker/sdk/public/
           
       - name: Checkout AMBuild
         uses: actions/checkout@v4
@@ -83,7 +85,12 @@ jobs:
         run: |
           cd ambuild && python setup.py install && cd ..
 
-
+      - name: Install Clang 16
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          apt update && apt install -y clang-16
+          ln -sf /usr/bin/clang-16 /usr/bin/clang && ln -sf /usr/bin/clang++-16 /usr/bin/clang++
+          
       - name: Build
         working-directory: LuaUnlocker
         shell: bash
