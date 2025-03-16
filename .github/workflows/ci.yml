@@ -67,10 +67,19 @@ jobs:
           cd LuaUnlocker/protobuf
           protoc --cpp_out=generated *.proto
 
-      - name: Copy Protobuf Headers to SDK
+      - name: Copy Protobuf Headers to SDK (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
         run: |
           mkdir -p hl2sdk-cs2/public
           cp LuaUnlocker/protobuf/generated/*.pb.h hl2sdk-cs2/public/
+
+      - name: Copy Protobuf Headers to SDK (Windows)
+        if: matrix.os == 'windows-2022'
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path hl2sdk-cs2/public
+          Copy-Item -Path LuaUnlocker/protobuf/generated/*.pb.h -Destination hl2sdk-cs2/public/
+
 
       - name: Checkout AMBuild
         uses: actions/checkout@v4
