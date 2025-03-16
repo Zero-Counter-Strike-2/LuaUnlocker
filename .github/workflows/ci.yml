@@ -48,16 +48,6 @@ jobs:
       - name: Patch HL2SDK (va_list fix)
         run: |
           sed -i 's/m_ReuseList = List;/va_copy(m_ReuseList, List);/g' hl2sdk-cs2/public/tier0/platform.h
-
-      - name: Install Protobuf Compiler
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y protobuf-compiler
-
-      - name: Generate Protobuf Files
-        run: |
-          cd hl2sdk-cs2
-          find . -name "*.proto" -exec protoc --cpp_out=. {} \;
           
       - name: Checkout AMBuild
         uses: actions/checkout@v4
@@ -69,12 +59,17 @@ jobs:
         run: |
           cd ambuild && python setup.py install && cd ..
 
+      - name: List Protobuf Directory
+        run: |
+          ls -R protobuf
+
+
       - name: Build
         working-directory: LuaUnlocker
         shell: bash
         run: |
           mkdir build && cd build
-          python ../configure.py --enable-optimize --symbol-files --sdks cs2
+          python ../configure.py --enable-optimize --symbol-files --sdks cs2 --include-dir ../protobuf
           ambuild
 
       - name: Upload artifact
