@@ -53,6 +53,11 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y protobuf-compiler libprotobuf-dev
 
+      - name: Regenerate Protobuf Files
+        run: |
+          cd LuaUnlocker/protobuf
+          protoc --cpp_out=generated *.proto
+
       - name: Copy Protobuf Headers to SDK
         run: |
           mkdir -p hl2sdk-cs2/public
