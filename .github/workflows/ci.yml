@@ -48,6 +48,11 @@ jobs:
       - name: Patch HL2SDK (va_list fix)
         run: |
           sed -i 's/m_ReuseList = List;/va_copy(m_ReuseList, List);/g' hl2sdk-cs2/public/tier0/platform.h
+
+      - name: Copy Protobuf Headers to SDK
+        run: |
+          # Copy generated .pb.h files into the SDK's public directory
+          cp LuaUnlocker/protobuf/generated/*.pb.h LuaUnlocker/hl2sdk-cs2/public/
           
       - name: Checkout AMBuild
         uses: actions/checkout@v4
