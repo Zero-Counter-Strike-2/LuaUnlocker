@@ -62,16 +62,23 @@ jobs:
           ./vcpkg/bootstrap-vcpkg.bat
           ./vcpkg/vcpkg install protobuf:x64-windows
 
-          # Set environment variables
-          $vcpkgInclude = "$(pwd)/vcpkg/installed/x64-windows/include"
-          echo "VCPKG_INCLUDE=$vcpkgInclude" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          # Set PROTOC_PATH to the exact location of protoc.exe
+          $protocPath = Resolve-Path "vcpkg/installed/x64-windows/tools/protobuf/protoc.exe"
+          echo "PROTOC_PATH=$protocPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Regenerate Protobuf Files (Windows)
         if: matrix.os == 'windows-2022'
         shell: pwsh
         run: |
           cd LuaUnlocker/protobuf
-          & "$env:PROTOC_PATH/protoc.exe" --cpp_out=generated *.proto
+          & "$env:PROTOC_PATH" --cpp_out=generated *.proto
+
+      - name: Debug Protobuf Installation (Windows)
+        if: matrix.os == 'windows-2022'
+        shell: pwsh
+        run: |
+          echo "Protoc path: $env:PROTOC_PATH"
+          ls "$env:PROTOC_PATH"
 
       - name: Regenerate Protobuf Files (Ubuntu)
         run: |
