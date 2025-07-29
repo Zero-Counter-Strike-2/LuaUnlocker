@@ -125,7 +125,20 @@ jobs:
             touch hl2sdk-cs2/lib/linux64/libtier0.so
           fi
 
-      - name: Build
+      - name: Build (Windows)
+        if: matrix.os == 'windows-2022'
+        working-directory: LuaUnlocker
+        shell: pwsh
+        run: |
+          # Resolve protobuf include path from vcpkg
+          $protobufInclude = Resolve-Path "vcpkg\installed\x64-windows\include"
+          mkdir build
+          cd build
+          python ../configure.py --enable-optimize --symbol-files --sdks cs2 --include-dir "$protobufInclude"
+          ambuild
+
+      - name: Build (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
         working-directory: LuaUnlocker
         shell: bash
         run: |
