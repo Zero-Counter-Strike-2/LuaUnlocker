@@ -81,6 +81,7 @@ jobs:
           ls "$env:PROTOC_PATH"
 
       - name: Regenerate Protobuf Files (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
         run: |
           cd LuaUnlocker/protobuf
           protoc --cpp_out=generated *.proto
