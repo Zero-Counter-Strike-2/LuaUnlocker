@@ -60,7 +60,11 @@ jobs:
           # Install vcpkg and Protobuf
           git clone https://github.com/microsoft/vcpkg.git
           ./vcpkg/bootstrap-vcpkg.bat
-          ./vcpkg/vcpkg install protobuf:x64-windows
+          ./vcpkg/vcpkg install protobuf:x64-windows --triplet x64-windows
+
+          # Verify installed files
+          ls vcpkg/installed/x64-windows/include
+          ls vcpkg/installed/x64-windows/lib
 
           # Set PROTOC_PATH to the exact location of protoc.exe
           $protocPath = Resolve-Path "vcpkg/installed/x64-windows/tools/protobuf/protoc.exe"
@@ -139,13 +143,19 @@ jobs:
         working-directory: LuaUnlocker
         shell: pwsh
         run: |
-          # Resolve protobuf include path from vcpkg
-          $protobufInclude = Resolve-Path "vcpkg\installed\x64-windows\include"
-
-          # Verify the path exists
+          # Use workspace root path directly
+          $root = $env:GITHUB_WORKSPACE
+          $protobufInclude = Join-Path $root "vcpkg\installed\x64-windows\include"
+    
+          # Fallback to lib directory if include doesn't exist
           if (-not (Test-Path $protobufInclude)) {
-            Write-Error "Protobuf include path not found: $protobufInclude"
-            Get-ChildItem "..\vcpkg\installed\x64-windows" -Recurse | Select-Object FullName
+            $protobufInclude = Join-Path $root "vcpkg\installed\x64-windows\lib"
+          }
+    
+          # Verify we have protobuf headers
+          if (-not (Test-Path (Join-Path $protobufInclude "google\protobuf\runtime_version.h"))) {
+            Write-Error "Protobuf headers still missing!"
+            Get-ChildItem $protobufInclude -Recurse -Filter *.h
             exit 1
           }
 
