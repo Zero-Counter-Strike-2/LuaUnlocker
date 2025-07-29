@@ -125,6 +125,15 @@ jobs:
             touch hl2sdk-cs2/lib/linux64/libtier0.so
           fi
 
+      - name: Verify Vcpkg Structure (Windows)
+        if: matrix.os == 'windows-2022'
+        shell: pwsh
+        run: |
+          Write-Output "Workspace contents:"
+          Get-ChildItem -Path $env:GITHUB_WORKSPACE -Depth 2
+          Write-Output "Vcpkg installed files:"
+          Get-ChildItem -Path "$env:GITHUB_WORKSPACE\vcpkg\installed\x64-windows" -Recurse
+
       - name: Build (Windows)
         if: matrix.os == 'windows-2022'
         working-directory: LuaUnlocker
@@ -132,9 +141,16 @@ jobs:
         run: |
           # Resolve protobuf include path from vcpkg
           $protobufInclude = Resolve-Path "vcpkg\installed\x64-windows\include"
-          mkdir build
-          cd build
-          python ../configure.py --enable-optimize --symbol-files --sdks cs2 --include-dir "$protobufInclude"
+
+          # Verify the path exists
+          if (-not (Test-Path $protobufInclude)) {
+            Write-Error "Protobuf include path not found: $protobufInclude"
+            Get-ChildItem "..\vcpkg\installed\x64-windows" -Recurse | Select-Object FullName
+            exit 1
+          }
+
+          mkdir build && cd build
+          python ../configure.py --enable-optimize --symbol-files --sdks cs2 --include-dir "$(Resolve-Path $protobufInclude)"
           ambuild
 
       - name: Build (Ubuntu)
