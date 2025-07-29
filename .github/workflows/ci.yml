@@ -57,25 +57,22 @@ jobs:
       - name: Install Protobuf (Windows)
         if: matrix.os == 'windows-2022'
         run: |
-          # Install vcpkg and Protobuf
-          git clone https://github.com/microsoft/vcpkg.git
-          ./vcpkg/bootstrap-vcpkg.bat
-          ./vcpkg/vcpkg install protobuf:x64-windows --triplet x64-windows
-
-          # Verify installed files
-          ls vcpkg/installed/x64-windows/include
-          ls vcpkg/installed/x64-windows/lib
-
-          # Set PROTOC_PATH to the exact location of protoc.exe
-          $protocPath = Resolve-Path "vcpkg/installed/x64-windows/tools/protobuf/protoc.exe"
-          echo "PROTOC_PATH=$protocPath" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          # Install precompiled protobuf instead of vcpkg
+          $version = "21.12"
+          $url = "https://github.com/protocolbuffers/protobuf/releases/download/v$version/protoc-$version-win64.zip"
+          curl -L -o protoc.zip $url
+          Expand-Archive -Path protoc.zip -DestinationPath protoc_dist
+    
+          # Set environment variables
+          echo "PROTOC_PATH=$pwd\protoc_dist\bin\protoc.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
+          echo "PROTOBUF_INCLUDE=$pwd\protoc_dist\include" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
       - name: Regenerate Protobuf Files (Windows)
         if: matrix.os == 'windows-2022'
         shell: pwsh
         run: |
           cd LuaUnlocker/protobuf
-          & "$env:PROTOC_PATH" --cpp_out=generated *.proto
+          & "$env:PROTOC_PATH" --cpp_out=generated -I include *.proto
 
       - name: Debug Protobuf Installation (Windows)
         if: matrix.os == 'windows-2022'
@@ -143,24 +140,12 @@ jobs:
         working-directory: LuaUnlocker
         shell: pwsh
         run: |
-          # Use workspace root path directly
-          $root = $env:GITHUB_WORKSPACE
-          $protobufInclude = Join-Path $root "vcpkg\installed\x64-windows\include"
-    
-          # Fallback to lib directory if include doesn't exist
-          if (-not (Test-Path $protobufInclude)) {
-            $protobufInclude = Join-Path $root "vcpkg\installed\x64-windows\lib"
-          }
-    
-          # Verify we have protobuf headers
-          if (-not (Test-Path (Join-Path $protobufInclude "google\protobuf\runtime_version.h"))) {
-            Write-Error "Protobuf headers still missing!"
-            Get-ChildItem $protobufInclude -Recurse -Filter *.h
-            exit 1
-          }
-
-          mkdir build && cd build
-          python ../configure.py --enable-optimize --symbol-files --sdks cs2 --include-dir "$(Resolve-Path $protobufInclude)"
+          # Add protobuf includes to compiler path
+          $env:INCLUDE = "$env:PROTOBUF_INCLUDE;$env:INCLUDE"
+          
+          mkdir build
+          cd build
+          python ../configure.py --enable-optimize --symbol-files --sdks cs2
           ambuild
 
       - name: Build (Ubuntu)
