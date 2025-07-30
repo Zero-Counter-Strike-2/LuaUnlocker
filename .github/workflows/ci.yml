@@ -72,7 +72,7 @@ jobs:
         shell: pwsh
         run: |
           cd LuaUnlocker/protobuf
-          & "$env:PROTOC_PATH" --cpp_out=generated -I include *.proto
+          & "$env:PROTOC_PATH" --cpp_out=generated -I=. -I=include *.proto
 
       - name: Debug Protobuf Installation (Windows)
         if: matrix.os == 'windows-2022'
