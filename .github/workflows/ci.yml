@@ -56,33 +56,38 @@ jobs:
 
       - name: Install Protobuf (Windows)
         if: matrix.os == 'windows-2022'
+        shell: cmd
         run: |
           # Install protobuf via vcpkg with static libraries
           git clone https://github.com/microsoft/vcpkg.git
-          ./vcpkg/bootstrap-vcpkg.bat
-          ./vcpkg/vcpkg install protobuf:x64-windows-static
-          echo "PROTOBUF_INCLUDE=%cd%\vcpkg\installed\x64-windows-static\include" >> %GITHUB_ENV%
+          cd vcpkg
+          bootstrap-vcpkg.bat
+          vcpkg install protobuf:x64-windows-static
+          echo PROTOBUF_INCLUDE=%cd%\installed\x64-windows-static\include >> %GITHUB_ENV%
+          echo PROTOC_PATH=%cd%\installed\x64-windows-static\tools\protobuf\protoc.exe >> %GITHUB_ENV%
+          cd ..
+
       
-          # Verify installation
-          ls vcpkg/installed/x64-windows-static/include/google/protobuf
+      - name: Verify Protobuf Installation (Windows)
+        if: matrix.os == 'windows-2022'
+        shell: cmd
+        run: |
+          echo Checking protobuf installation...
+          dir /s /b "%PROTOBUF_INCLUDE%\google\protobuf"
+          echo PROTOC exists at: %PROTOC_PATH%
+          if exist "%PROTOC_PATH%" (
+            echo Protoc found successfully
+          ) else (
+            echo ERROR: Protoc not found!
+            exit 1
+          )
       
       - name: Regenerate Protobuf Files (Windows)
         if: matrix.os == 'windows-2022'
-        shell: pwsh
+        shell: cmd
         run: |
-          $protoc = Resolve-Path "vcpkg\installed\x64-windows-static\tools\protobuf\protoc.exe"
-          cd LuaUnlocker/protobuf
-    
-          # Combine current directory and include directory
-          & $protoc --cpp_out=generated -I . -I include *.proto
-          Copy-Item generated/*.pb.h -Destination ../../hl2sdk-cs2/public/ -Force
-
-      - name: Debug Protobuf Installation (Windows)
-        if: matrix.os == 'windows-2022'
-        shell: pwsh
-        run: |
-          echo "Protoc path: $env:PROTOC_PATH"
-          ls "$env:PROTOC_PATH"
+          "%PROTOC_PATH%" --cpp_out=LuaUnlocker/protobuf/generated -I LuaUnlocker/protobuf/include -I LuaUnlocker/protobuf LuaUnlocker/protobuf/*.proto
+          xcopy /Y /E LuaUnlocker\protobuf\generated\*.pb.h hl2sdk-cs2\public\
 
       - name: Regenerate Protobuf Files (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
