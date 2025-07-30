@@ -61,25 +61,37 @@ jobs:
           # Install vcpkg and protobuf
           git clone https://github.com/microsoft/vcpkg.git
           ./vcpkg/bootstrap-vcpkg.bat -disableMetrics
-          ./vcpkg/vcpkg install protobuf --triplet x64-windows-static --version 3.21.12
+          
+          # Set protobuf version
+          $version = "3.21.12"
+          $portfile = "vcpkg/ports/protobuf/portfile.cmake"
 
+          # Checkout specific protobuf version
+          git -C vcpkg fetch origin
+          git -C vcpkg checkout "2025.07.21" -- ports/protobuf
+    
+          # Edit portfile to pin version
+          (Get-Content $portfile) -replace '^set\(VERSION .*$', "set(VERSION $version)" | Set-Content $portfile
+    
+          # Install protobuf
+          ./vcpkg/vcpkg install protobuf --triplet x64-windows-static
+    
           # Set environment variables
-          $protobufPath = Resolve-Path "vcpkg/installed/x64-windows-static"
-          $protocPath = Join-Path $protobufPath "tools/protobuf/protoc.exe"
-          $includePath = Join-Path $protobufPath "include"
+          $protobufPath = "$pwd/vcpkg/installed/x64-windows-static"
+          $protocPath = "$protobufPath/tools/protobuf/protoc.exe"
+          $includePath = "$protobufPath/include"
     
-          # Verify paths exist
+          # Verify installation
           if (-not (Test-Path $protocPath)) { throw "protoc.exe not found at $protocPath" }
-          if (-not (Test-Path $includePath)) { throw "protobuf includes not found at $includePath" }
+          if (-not (Test-Path "$includePath/google/protobuf")) { throw "protobuf headers missing" }
     
-          # Set environment variables for subsequent steps
-          echo "PROTOBUF_INCLUDE=$includePath" | Out-File -FilePath $env:GITHUB_ENV -Append
-          echo "PROTOC_PATH=$protocPath" | Out-File -FilePath $env:GITHUB_ENV -Append
+          # Set environment variables
+          echo "PROTOBUF_INCLUDE=$includePath" >> $env:GITHUB_ENV
+          echo "PROTOC_PATH=$protocPath" >> $env:GITHUB_ENV
     
           # Debug output
-          Write-Output "Protobuf include path: $includePath"
-          Write-Output "Protoc path: $protocPath"
-          Get-ChildItem $includePath/google/protobuf/runtime_version.h
+          Write-Output "Installed protobuf version: $version"
+          Get-ChildItem "$includePath/google/protobuf/descriptor.pb.h"
 
       - name: Verify Protobuf Installation
         if: matrix.os == 'windows-2022'
@@ -176,7 +188,7 @@ jobs:
           set INCLUDE=%PROTOBUF_INCLUDE%;%INCLUDE%
           mkdir build
           cd build
-          python ../configure.py --enable-optimize --symbol-files --sdks cs2 
+          python ../configure.py --enable-optimize --symbol-files --sdks cs2 --include-dir /usr/include
           ambuild
 
       - name: Build (Ubuntu)
