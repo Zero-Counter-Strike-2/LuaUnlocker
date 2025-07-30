@@ -73,8 +73,13 @@ jobs:
         if: matrix.os == 'windows-2022'
         shell: pwsh
         run: |
-          cd LuaUnlocker/protobuf
-          & "$env:PROTOC_PATH" --cpp_out=generated -I=. -I=include *.proto
+          # Create a single include directory structure
+          New-Item -ItemType Directory -Path proto_root
+          Copy-Item LuaUnlocker/protobuf/*.proto proto_root/
+          Copy-Item LuaUnlocker/protobuf/include proto_root/ -Recurse
+    
+          # Generate from unified directory
+          & "$env:PROTOC_PATH" --cpp_out=LuaUnlocker/protobuf/generated -I=proto_root proto_root/*.proto
 
       - name: Debug Protobuf Installation (Windows)
         if: matrix.os == 'windows-2022'
