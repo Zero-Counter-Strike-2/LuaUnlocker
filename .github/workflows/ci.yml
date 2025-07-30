@@ -57,27 +57,24 @@ jobs:
       - name: Install Protobuf (Windows)
         if: matrix.os == 'windows-2022'
         run: |
-          # Install precompiled protobuf instead of vcpkg
-          $version = "21.12"
+          # Download and extract v25.1 (latest stable)
+          $version = "25.1"
           $url = "https://github.com/protocolbuffers/protobuf/releases/download/v$version/protoc-$version-win64.zip"
           curl -L -o protoc.zip $url
           Expand-Archive -Path protoc.zip -DestinationPath protoc_dist
-    
-          # Set environment variables
-          echo "PROTOC_PATH=$pwd\protoc_dist\bin\protoc.exe" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
-          echo "PROTOBUF_INCLUDE=$pwd\protoc_dist\include" | Out-File -FilePath $env:GITHUB_ENV -Encoding utf8 -Append
 
+          # Verify critical headers exist
+          Test-Path "protoc_dist/include/google/protobuf/port_def.inc" || Write-Error "Missing headers!"
+    
+          echo "PROTOC_PATH=$pwd\protoc_dist\bin\protoc.exe" | Out-File -FilePath $env:GITHUB_ENV -Append
+          echo "PROTOBUF_INCLUDE=$pwd\protoc_dist\include" | Out-File -FilePath $env:GITHUB_ENV -Append
+      
       - name: Regenerate Protobuf Files (Windows)
         if: matrix.os == 'windows-2022'
         shell: pwsh
         run: |
-          # Create a single include directory structure
-          New-Item -ItemType Directory -Path proto_root
-          Copy-Item LuaUnlocker/protobuf/*.proto proto_root/
-          Copy-Item LuaUnlocker/protobuf/include proto_root/ -Recurse
-    
-          # Generate from unified directory
-          & "$env:PROTOC_PATH" --cpp_out=LuaUnlocker/protobuf/generated -I=proto_root proto_root/*.proto
+          cd LuaUnlocker/protobuf
+          & "$env:PROTOC_PATH" --cpp_out=generated -I=. -I=include *.proto
 
       - name: Debug Protobuf Installation (Windows)
         if: matrix.os == 'windows-2022'
@@ -145,11 +142,11 @@ jobs:
         working-directory: LuaUnlocker
         shell: pwsh
         run: |
-          # Add protobuf includes to compiler path
-          $env:INCLUDE = "$env:PROTOBUF_INCLUDE;$env:INCLUDE"
+          # Pass include paths explicitly to AMBuild
+          $env:CFLAGS += " -I$env:PROTOBUF_INCLUDE"
+          $env:CXXFLAGS += " -I$env:PROTOBUF_INCLUDE"
           
-          mkdir build
-          cd build
+          mkdir build && cd build
           python ../configure.py --enable-optimize --symbol-files --sdks cs2
           ambuild
 
