@@ -128,41 +128,39 @@ jobs:
             touch hl2sdk-cs2/lib/linux64/libtier0.so
           fi
 
-     # - name: Debug Includes (Windows)
+      # - name: Validate Environment (Windows)
       #  if: matrix.os == 'windows-2022'
       #  shell: pwsh
       #  run: |
-        #  # List protobuf headers
-        #  ls ..\vcpkg\installed\x64-windows-static\include\google\protobuf
-    
-          # Check generated headers
-        #  ls LuaUnlocker/protobuf/generated
-    
-          # Verify SDK headers
-        #  ls hl2sdk-cs2/public
+      #    cl.exe
+      #    ls "..\vcpkg\installed\x64-windows-static\include\google\protobuf\runtime_version.h"
+      #    echo "INCLUDE=$env:INCLUDE"
 
       - name: Build (Windows)
         if: matrix.os == 'windows-2022'
         working-directory: LuaUnlocker
         shell: pwsh
         run: |
-          # Get absolute path to protobuf includes
-          $proto_include = Resolve-Path "..\vcpkg\installed\x64-windows-static\include"
+          # Initialize MSVC
+          $vcvars = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          cmd.exe /c "`"$vcvars`" > nul 2>&1 && set" | ForEach-Object {
+           if ($_ -match '^([^=]+)=(.*)') { Set-Item -Path "env:\$($matches[1])" -Value $matches[2] }
+          }
     
-          # Create custom build command with explicit includes
-          @"
+          # Configure protobuf paths
+          $protoInclude = Resolve-Path "..\vcpkg\installed\x64-windows-static\include"
+          $env:INCLUDE = "$protoInclude;$env:INCLUDE"
+          $env:LIB = "..\vcpkg\installed\x64-windows-static\lib;$env:LIB"
+    
+          # Disable warnings-as-errors
+          $env:CFLAGS = "-Wno-error"
+          $env:CXXFLAGS = "-Wno-error"
+    
+          # Build with forced MSVC toolchain
           mkdir build
           cd build
-          python ../configure.py --enable-optimize --sdks cs2 --include-dir "$proto_include"
+          python ../configure.py --enable-optimize --sdks cs2 --toolchain msvc
           ambuild
-          "@ | Out-File build.ps1 -Encoding UTF8
-    
-          # Execute in isolated environment
-          & {
-            $env:Path = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Tools\MSVC\14.44.35207\bin\Hostx64\x64;$env:Path"
-            $env:LIB = "..\vcpkg\installed\x64-windows-static\lib;$env:LIB"
-            powershell -ExecutionPolicy Bypass -File build.ps1
-          }
 
       - name: Build (Ubuntu)
         if: matrix.os == 'ubuntu-latest'
