@@ -176,7 +176,7 @@ jobs:
           set INCLUDE=%PROTOBUF_INCLUDE%;%INCLUDE%
           mkdir build
           cd build
-          python ../configure.py --enable-optimize --sdks cs2 --target-arch x86_64 --include-dir /usr/include
+          python ../configure.py --enable-optimize --symbol-files --sdks cs2 --include-dir /usr/include
           ambuild
 
       - name: Build (Ubuntu)
