@@ -71,7 +71,9 @@ jobs:
         run: |
           $protoc = Resolve-Path "vcpkg\installed\x64-windows-static\tools\protobuf\protoc.exe"
           cd LuaUnlocker/protobuf
-          & $protoc --cpp_out=generated -I include *.proto
+    
+          # Combine current directory and include directory
+          & $protoc --cpp_out=generated -I . -I include *.proto
           Copy-Item generated/*.pb.h -Destination ../../hl2sdk-cs2/public/ -Force
 
       - name: Debug Protobuf Installation (Windows)
@@ -144,19 +146,6 @@ jobs:
         working-directory: LuaUnlocker
         shell: pwsh
         run: |
-          # Pass include paths explicitly to AMBuild
-          $env:CFLAGS += " -I$env:PROTOBUF_INCLUDE"
-          $env:CXXFLAGS += " -I$env:PROTOBUF_INCLUDE"
-          
-          mkdir build && cd build
-          python ../configure.py --enable-optimize --symbol-files --sdks cs2
-          ambuild
-
-      - name: Build (Ubuntu)
-        if: matrix.os == 'windows-2022'
-        working-directory: LuaUnlocker
-        shell: pwsh
-        run: |
           # Get absolute path to protobuf includes
           $proto_include = Resolve-Path "..\vcpkg\installed\x64-windows-static\include"
     
@@ -174,6 +163,15 @@ jobs:
             $env:LIB = "..\vcpkg\installed\x64-windows-static\lib;$env:LIB"
             powershell -ExecutionPolicy Bypass -File build.ps1
           }
+
+      - name: Build (Ubuntu)
+        if: matrix.os == 'ubuntu-latest'
+        working-directory: LuaUnlocker
+        shell: bash
+        run: |
+          mkdir build && cd build
+          python ../configure.py --enable-optimize --symbol-files --sdks cs2 --include-dir /usr/include
+          ambuild
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
