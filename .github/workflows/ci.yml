@@ -128,38 +128,23 @@ jobs:
             touch hl2sdk-cs2/lib/linux64/libtier0.so
           fi
 
-      - name: Validate Environment (Windows)
+      - name: Validate MSVC Setup (Windows)
         if: matrix.os == 'windows-2022'
-        shell: pwsh
+        shell: cmd
         run: |
-          cl.exe
-          ls "..\vcpkg\installed\x64-windows-static\include\google\protobuf\runtime_version.h"
-          echo "INCLUDE=$env:INCLUDE"
+          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          cl.exe /?
+          where cl.exe
+          echo INCLUDE=%INCLUDE%
 
       - name: Build (Windows)
         if: matrix.os == 'windows-2022'
         working-directory: LuaUnlocker
-        shell: pwsh
+        shell: cmd
         run: |
-          # Initialize MSVC
-          $vcvars = "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          cmd.exe /c "`"$vcvars`" > nul 2>&1 && set" | ForEach-Object {
-           if ($_ -match '^([^=]+)=(.*)') { Set-Item -Path "env:\$($matches[1])" -Value $matches[2] }
-          }
-    
-          # Configure protobuf paths
-          $protoInclude = Resolve-Path "..\vcpkg\installed\x64-windows-static\include"
-          $env:INCLUDE = "$protoInclude;$env:INCLUDE"
-          $env:LIB = "..\vcpkg\installed\x64-windows-static\lib;$env:LIB"
-    
-          # Disable warnings-as-errors
-          $env:CFLAGS = "-Wno-error"
-          $env:CXXFLAGS = "-Wno-error"
-    
-          # Build with forced MSVC toolchain
-          mkdir build
-          cd build
-          python ../configure.py --enable-optimize --sdks cs2 --toolchain msvc
+          call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          mkdir build && cd build
+          python ../configure.py --enable-optimize --sdks cs2
           ambuild
 
       - name: Build (Ubuntu)
