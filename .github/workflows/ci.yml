@@ -128,18 +128,18 @@ jobs:
             touch hl2sdk-cs2/lib/linux64/libtier0.so
           fi
 
-      - name: Debug Includes (Windows)
-        if: matrix.os == 'windows-2022'
-        shell: pwsh
-        run: |
-          # List protobuf headers
-          ls ..\vcpkg\installed\x64-windows-static\include\google\protobuf
+     # - name: Debug Includes (Windows)
+      #  if: matrix.os == 'windows-2022'
+      #  shell: pwsh
+      #  run: |
+        #  # List protobuf headers
+        #  ls ..\vcpkg\installed\x64-windows-static\include\google\protobuf
     
           # Check generated headers
-          ls LuaUnlocker/protobuf/generated
+        #  ls LuaUnlocker/protobuf/generated
     
           # Verify SDK headers
-          ls hl2sdk-cs2/public
+        #  ls hl2sdk-cs2/public
 
       - name: Build (Windows)
         if: matrix.os == 'windows-2022'
