@@ -131,14 +131,14 @@ jobs:
             touch hl2sdk-cs2/lib/linux64/libtier0.so
           fi
 
-      - name: Verify Vcpkg Structure (Windows)
-        if: matrix.os == 'windows-2022'
-        shell: pwsh
-        run: |
-          Write-Output "Workspace contents:"
-          Get-ChildItem -Path $env:GITHUB_WORKSPACE -Depth 2
-          Write-Output "Vcpkg installed files:"
-          Get-ChildItem -Path "$env:GITHUB_WORKSPACE\vcpkg\installed\x64-windows" -Recurse
+      #- name: Verify Vcpkg Structure (Windows)
+     #   if: matrix.os == 'windows-2022'
+      #  shell: pwsh
+      #  run: |
+       #   Write-Output "Workspace contents:"
+        #  Get-ChildItem -Path $env:GITHUB_WORKSPACE -Depth 2
+         # Write-Output "Vcpkg installed files:"
+         # Get-ChildItem -Path "$env:GITHUB_WORKSPACE\vcpkg\installed\x64-windows" -Recurse
 
       - name: Build (Windows)
         if: matrix.os == 'windows-2022'
