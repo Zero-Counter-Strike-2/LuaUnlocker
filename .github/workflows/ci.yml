@@ -128,13 +128,13 @@ jobs:
             touch hl2sdk-cs2/lib/linux64/libtier0.so
           fi
 
-      # - name: Validate Environment (Windows)
-      #  if: matrix.os == 'windows-2022'
-      #  shell: pwsh
-      #  run: |
-      #    cl.exe
-      #    ls "..\vcpkg\installed\x64-windows-static\include\google\protobuf\runtime_version.h"
-      #    echo "INCLUDE=$env:INCLUDE"
+      - name: Validate Environment (Windows)
+        if: matrix.os == 'windows-2022'
+        shell: pwsh
+        run: |
+          cl.exe
+          ls "..\vcpkg\installed\x64-windows-static\include\google\protobuf\runtime_version.h"
+          echo "INCLUDE=$env:INCLUDE"
 
       - name: Build (Windows)
         if: matrix.os == 'windows-2022'
