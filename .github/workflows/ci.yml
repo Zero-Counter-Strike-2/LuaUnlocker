@@ -61,7 +61,7 @@ jobs:
           # Install vcpkg and protobuf
           git clone https://github.com/microsoft/vcpkg.git
           ./vcpkg/bootstrap-vcpkg.bat -disableMetrics
-          ./vcpkg/vcpkg install protobuf:x64-windows-static
+          ./vcpkg/vcpkg install protobuf:x64-windows-static@3.21.12
 
           # Set environment variables
           $protobufPath = Resolve-Path "vcpkg/installed/x64-windows-static"
