@@ -61,7 +61,7 @@ jobs:
           # Install vcpkg and protobuf
           git clone https://github.com/microsoft/vcpkg.git
           ./vcpkg/bootstrap-vcpkg.bat -disableMetrics
-          ./vcpkg/vcpkg install protobuf:x64-windows-static@3.21.12
+          ./vcpkg/vcpkg install protobuf --triplet x64-windows-static --version 3.21.12
 
           # Set environment variables
           $protobufPath = Resolve-Path "vcpkg/installed/x64-windows-static"
@@ -176,7 +176,7 @@ jobs:
           set INCLUDE=%PROTOBUF_INCLUDE%;%INCLUDE%
           mkdir build
           cd build
-          python ../configure.py --enable-optimize --symbol-files --sdks cs2 --include-dir /usr/include
+          python ../configure.py --enable-optimize --symbol-files --sdks cs2 
           ambuild
 
       - name: Build (Ubuntu)
