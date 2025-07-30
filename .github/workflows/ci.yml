@@ -61,6 +61,7 @@ jobs:
           git clone https://github.com/microsoft/vcpkg.git
           ./vcpkg/bootstrap-vcpkg.bat
           ./vcpkg/vcpkg install protobuf:x64-windows-static
+          echo "PROTOBUF_INCLUDE=%cd%\vcpkg\installed\x64-windows-static\include" >> %GITHUB_ENV%
       
           # Verify installation
           ls vcpkg/installed/x64-windows-static/include/google/protobuf
@@ -128,14 +129,22 @@ jobs:
             touch hl2sdk-cs2/lib/linux64/libtier0.so
           fi
 
-  #    - name: Validate MSVC Setup (Windows)
-  #      if: matrix.os == 'windows-2022'
-   #     shell: cmd
-    #    run: |
-     #     "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-      #    cl.exe /?
-       #   where cl.exe
-        #  echo INCLUDE=%INCLUDE%
+      - name: Verify Protobuf Headers (Windows)
+        if: matrix.os == 'windows-2022'
+        shell: cmd
+        run: |
+          dir /s /b "%PROTOBUF_INCLUDE%\google\protobuf\runtime_version.h"
+          echo INCLUDE=%INCLUDE%
+          echo PROTOBUF_INCLUDE=%PROTOBUF_INCLUDE%
+
+      - name: Validate MSVC Setup (Windows)
+        if: matrix.os == 'windows-2022'
+        shell: cmd
+        run: |
+          "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
+          cl.exe /?
+          where cl.exe
+          echo INCLUDE=%INCLUDE%
 
       - name: Build (Windows)
         if: matrix.os == 'windows-2022'
@@ -143,8 +152,10 @@ jobs:
         shell: cmd
         run: |
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
-          mkdir build && cd build
-          python ../configure.py --enable-optimize --sdks cs2
+          set INCLUDE=%PROTOBUF_INCLUDE%;%INCLUDE%
+          mkdir build
+          cd build
+          python ../configure.py --enable-optimize --sdks cs2 --target-arch x86_64 --include-dir /usr/include
           ambuild
 
       - name: Build (Ubuntu)
