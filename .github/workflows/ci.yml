@@ -93,7 +93,7 @@ jobs:
           Write-Output "Installed protobuf version: $version"
           Get-ChildItem "$includePath/google/protobuf/descriptor.pb.h"
 
-      - name: Verify Protobuf Installation
+      - name: Verify Protobuf Installation1
         if: matrix.os == 'windows-2022'
         shell: pwsh
         run: |
