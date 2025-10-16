@@ -1,6 +1,7 @@
 [submodule "sdk"]
 	path = sdk
 	url = https://github.com/alliedmodders/hl2sdk.git
+	commit = 07f35e1
 [submodule "hl2sdk-manifests"]
 	path = hl2sdk-manifests
 	url = https://github.com/alliedmodders/hl2sdk-manifests
