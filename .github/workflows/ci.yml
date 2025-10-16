@@ -180,7 +180,7 @@ jobs:
           echo INCLUDE=%INCLUDE%
 
       - name: Build (Windows)
-        if: matrix.os == 'windows-2022'
+        if: matrix.os == 'windows-latest'
         working-directory: LuaUnlocker
         shell: cmd
         run: |
