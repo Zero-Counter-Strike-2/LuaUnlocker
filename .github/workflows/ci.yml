@@ -18,9 +18,9 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2022, ubuntu-latest]
+        os: [windows-latest, ubuntu-latest]
         include:
-          - os: windows-2022
+          - os: windows-latest
           - os: ubuntu-latest
             container: registry.gitlab.steamos.cloud/steamrt/sniper/sdk
     steps:
@@ -93,7 +93,7 @@ jobs:
           Write-Output "Installed protobuf version: $version"
           Get-ChildItem "$includePath/google/protobuf/descriptor.pb.h"
 
-      - name: Verify Protobuf Installation
+      - name: Verify Protobuf Installation1
         if: matrix.os == 'windows-2022'
         shell: pwsh
         run: |
@@ -180,12 +180,13 @@ jobs:
           echo INCLUDE=%INCLUDE%
 
       - name: Build (Windows)
-        if: matrix.os == 'windows-2022'
+        if: matrix.os == 'windows-latest'
         working-directory: LuaUnlocker
         shell: cmd
         run: |
           call "C:\Program Files\Microsoft Visual Studio\2022\Enterprise\VC\Auxiliary\Build\vcvars64.bat"
           set INCLUDE=%PROTOBUF_INCLUDE%;%INCLUDE%
+          set AMBUILD_CXX_STANDARD=17
           mkdir build
           cd build
           python ../configure.py --enable-optimize --symbol-files --sdks cs2 --include-dir /usr/include
