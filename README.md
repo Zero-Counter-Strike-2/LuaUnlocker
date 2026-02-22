@@ -2,7 +2,7 @@
 
 ## WARNING: Lua VScript is intentionally disabled by Valve! It is expected to be replaced by Pulse in the future, and will likely be completely removed from the game when that happens. Depend on Lua at your own risk.
 
-Enables the Lua VScripting language, now as a Metamod plugin!
+Enables the Lua VScripting language, now as a Metamod plugin!1
 
 ## Installation
 
