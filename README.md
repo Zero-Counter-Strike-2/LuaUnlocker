@@ -22,7 +22,7 @@ setx HL2SDKCS2=/path/to/sdk/submodule
 mkdir build && cd build
 python ../configure.py -s cs2
 ambuild
-```
+```1
 
 ### Linux
 ```bash
